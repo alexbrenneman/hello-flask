@@ -1,4 +1,5 @@
 from flask import Flask, request, redirect
+import cgi
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -7,15 +8,15 @@ form = """
 <!doctype html>
 <html>
     <body>
-        <form action="/hello">
+        <form action="/hello" method="post">
             <lable for="first_name">First Name:</lable>
-            <input type="text" name="first_name">
+            <input id="first-name" type="text" name="first_name"/>
             <input type="submit" />
         </form>
     </body>
 </html>
-
 """
+
 
 @app.route("/")
 def index():
@@ -24,7 +25,7 @@ def index():
 @app.route("/hello", methods=["POST"])
 def hello():
     first_name = request.form["first_name"]
-    return '<h1>Hello, '+ first_name + '</h1>'
+    return '<h1>Hello, ' + cgi.escape(first_name) + '</h1>'
 
 time_form = """
     <style>
@@ -43,6 +44,7 @@ time_form = """
         <input type="submit" value="Validate" />
     </form>
     """
+
 @app.route('/validate-time')
 def display_time_form():
     return time_form.format(hours='', hours_error='',
