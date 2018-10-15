@@ -1,10 +1,6 @@
-from flask import Flask, request, redirect
+from flask import Flask, request, redirect, render_template
 import cgi
 import os
-import jinja2
-
-template_dir = os.path.join(os.path.dirname(__file__),'templates')
-jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True)
 
 
 app = Flask(__name__)
@@ -15,20 +11,17 @@ app.config['DEBUG'] = True
 
 @app.route("/")
 def index():
-    template = jinja_env.get_template('hello_form.html')
-    return template.render()
+    return render_template('hello_form.html')
 
 @app.route("/hello", methods=["POST"])
 def hello():
     first_name = request.form["first_name"]
-    template = jinja_env.get_template('hello_greeting.html')
-    return template.render(first_name=first_name)
+    return render_template('hello_greeting.html',first_name=first_name)
 
 
-@app.route('/validate-time')
+@app.route('/validate-time') 
 def display_time_form():
-    template = jinja_env.get_template('time_form.html')
-    return template.render()
+    return render_template("time_form.html")
 
 def is_integer(num):
     try:
@@ -71,8 +64,7 @@ def validate_time():
         time = str(hours) + ':' + str(minutes)
         return redirect('/valid-time?time={0}'.format(time))
     else:
-        template = jinja_env.get_template('time_form.html')
-        return template.render(hours_error=hours_error,
+        return render_template("time_form.html", hours_error=hours_error,
         minutes_error=minutes_error,
         hours=hours,
         minutes=minutes)
@@ -84,5 +76,16 @@ def valid_time():
     return '<h1>You submitted {0}. Thanks for submitting a valid time!</h1>'.format(time)
 
 
+
+tasks = []
+
+
+@app.route('/todos', methods=['POST','GET'])
+def todos():
+
+    if request.method == 'POST':
+        task = request.form['task']
+        tasks.append(task)
+    return render_template("todos.html",title="TODOs",tasks=tasks)
 
 app.run()
